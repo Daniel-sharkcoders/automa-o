@@ -1,0 +1,21 @@
+#tecla 1 - 530 520
+#tecla 2 - 630 520
+#tecla 3 - 730 520
+#tecla 4 - 930 520
+
+import pyautogui as pg
+from time import sleep
+
+pg.alert(text='clique pra começar', title='Clique pra começar', button='OK')
+
+while True:
+    if pg.pixel(530, 720)[0] == 0:
+        pg.click(530, 750)
+    if pg.pixel(630, 720)[0] == 0:
+        pg.click(630, 750)
+    if pg.pixel(730, 720)[0] == 0:
+        pg.click(730, 750)
+    if pg.pixel(930, 720)[0] == 0:
+        pg.click(930, 750)
+
+
