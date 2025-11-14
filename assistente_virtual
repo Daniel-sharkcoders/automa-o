@@ -1,0 +1,97 @@
+import pyttsx3 as tts
+import speech_recognition as sr
+from datetime import datetime
+import wikipedia
+import pywhatkit as kit
+import pyautogui as pg
+from time import sleep
+
+def speak(text):
+    """Fala o texto indicado — reinicializa engine para evitar bloqueio"""
+    print(f"Assistant: {text}")
+    engine = tts.init()
+    voices = engine.getProperty('voices')
+    engine.setProperty('rate', 150)
+    engine.setProperty('volume', 1.0)
+    engine.setProperty('voice', voices[0].id)
+    engine.say(text)
+    engine.runAndWait()
+    engine.stop()
+
+recognition = sr.Recognizer()
+
+with sr.Microphone() as source:
+    recognition.adjust_for_ambient_noise(source, duration=1)
+    speak("Hello, I am Daniel, your virtual assistant. How can I help you?")
+    print("Ready and listening... (say 'stop' to quit)\n")
+
+    while True:
+        try:
+            print("Listening...")
+            audio = recognition.listen(source, timeout=15, phrase_time_limit=10)
+            print("Recognizing...")
+            query = recognition.recognize_google(audio, language='en-US')
+            print(f"You said: {query}\n")
+
+            if query.lower() in ["stop", "exit", "quit"]:
+                speak("Goodbye!")
+                break
+
+            if "how are you" in query.lower():
+                speak("I'm doing great, thank you!")
+            elif "your name" in query.lower():
+                speak("My name is Daniel.")
+            elif "time" in query.lower():
+                speak(f"The current time is {datetime.now().strftime('%H:%M')}.")
+
+            elif "wikipedia" in query.lower():
+                speak("Searching Wikipedia...")
+                try:
+                    topic = query.lower().replace("wikipedia", "").strip()
+                    result = wikipedia.summary(topic, sentences=1)
+                    speak(f"According to Wikipedia: {result}")
+                except wikipedia.exceptions.DisambiguationError as e:
+                    speak("Your query is ambiguous. Please be more specific.")
+                except wikipedia.exceptions.PageError:
+                    speak("I could not find any results on Wikipedia.")
+
+            elif "message" in query.lower():
+                speak("Searching Whats...")
+                try:
+                    phone = "+351934276471"
+                    message = query.lower().replace("message", "")
+                    speak(f"Enviando mensagem para {phone}.")
+                    kit.sendwhatmsg_instantly(phone, message)
+                    sleep(10)  # espera o WhatsApp Web abrir
+                    pg.press("enter")
+                except Exception as e:
+                    speak("sorry, i can't understand what are u saying.")
+
+            # Tocar música no YouTube
+            elif "play" in query.lower() and "youtube" in query.lower():
+                song = (
+                    query.lower()
+                    .replace("play", "")
+                    .replace("on youtube", "")
+                    .replace("youtube", "")
+                    .strip()
+                )
+
+                if song:
+                    speak(f"Playing {song} on YouTube.")
+                    kit.playonyt(song)  # abre o vídeo no browser predefinido
+                else:
+                    speak("What song should I play on YouTube?")
+
+            else:
+                speak("I'm sorry, I didn't understand that.")
+
+        except sr.WaitTimeoutError:
+            print("No speech detected, listening again...\n")
+            continue
+        except sr.UnknownValueError:
+            speak("Sorry, I didn’t catch that. Please repeat.")
+            continue
+        except Exception as e:
+            print(f"Error: {e}")
+            continue
