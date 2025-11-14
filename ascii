@@ -1,0 +1,17 @@
+import pywhatkit as pwk
+import flet as ft
+
+
+def main(page: ft.Page):
+
+    def convert_to_ascii(e):
+        pwk.image_to_ascii_art(f"{caixa_nome}.png", "texto_ascii.txt")
+
+    text = ft.Text("Conversor de Imagem para ASCII", size=20)
+    caixa_nome = ft.TextField(label="Nome da imagem (sem extensão)")
+    botao_converter = ft.ElevatedButton("Converter para ASCII", on_click=convert_to_ascii)
+
+
+    page.add(text, caixa_nome, botao_converter, ascii)
+
+ft.app(target=main)
